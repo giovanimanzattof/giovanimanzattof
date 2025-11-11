@@ -1,0 +1,7 @@
+{
+  "name": "Nutricionista IA",
+  "description": "Um coach digital de saúde e nutrição com inteligência emocional e aprendizado contínuo, ajudando o usuário a criar hábitos duradouros, melhorar a forma física e viver com mais energia.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
