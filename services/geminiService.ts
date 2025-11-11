@@ -1,8 +1,7 @@
 
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
-import { UserProfile, MealPlan, ChatMessage } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const mealPlanSchema = {
   type: Type.OBJECT,
@@ -62,7 +61,7 @@ const mealPlanSchema = {
 };
 
 
-export const generateMealPlan = async (profile: UserProfile): Promise<MealPlan> => {
+export const generateMealPlan = async (profile) => {
   const prompt = `
     Crie um plano alimentar detalhado para um dia, em português, para o seguinte perfil de usuário:
     - Nome: ${profile.name}
@@ -81,7 +80,7 @@ export const generateMealPlan = async (profile: UserProfile): Promise<MealPlan> 
   `;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
@@ -91,7 +90,7 @@ export const generateMealPlan = async (profile: UserProfile): Promise<MealPlan> 
     });
     
     const mealPlan = JSON.parse(response.text);
-    return mealPlan as MealPlan;
+    return mealPlan;
 
   } catch (error) {
     console.error("Error generating meal plan:", error);
@@ -99,7 +98,7 @@ export const generateMealPlan = async (profile: UserProfile): Promise<MealPlan> 
   }
 };
 
-export const getChatResponse = async (history: ChatMessage[], newMessage: string, profile: UserProfile): Promise<string> => {
+export const getChatResponse = async (history, newMessage, profile) => {
   const systemInstruction = `
     Você é a "Nutricionista IA", uma assistente de inteligência artificial especializada em nutrição e bem-estar.
     Seu tom é sempre empático, educativo e motivacional. Use frases curtas, diretas e positivas.
@@ -116,14 +115,13 @@ export const getChatResponse = async (history: ChatMessage[], newMessage: string
     parts: [{ text: msg.content }]
   }));
 
-  const chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: { systemInstruction },
-    history: chatHistory
-  });
-
   try {
-    const response: GenerateContentResponse = await chat.sendMessage({ message: newMessage });
+    // FIX: Use ai.models.generateContent for chat history, as the previous ai.chats.create usage was incorrect and would not maintain conversation context.
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: chatHistory,
+      config: { systemInstruction },
+    });
     return response.text;
   } catch (error) {
     console.error("Error getting chat response:", error);
@@ -131,7 +129,7 @@ export const getChatResponse = async (history: ChatMessage[], newMessage: string
   }
 };
 
-export const analyzeLabel = async (base64Image: string, mimeType: string): Promise<string> => {
+export const analyzeLabel = async (base64Image, mimeType) => {
     const prompt = `
         Analise a tabela nutricional e a lista de ingredientes desta imagem de rótulo de alimento.
         Aja como um nutricionista preocupado.
@@ -150,7 +148,7 @@ export const analyzeLabel = async (base64Image: string, mimeType: string): Promi
         };
         const textPart = { text: prompt };
 
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image',
             contents: { parts: [imagePart, textPart] },
         });

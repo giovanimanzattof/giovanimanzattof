@@ -2,12 +2,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-interface ProgressData {
-  name: string;
-  peso: number;
-}
-
-const data: ProgressData[] = [
+const data = [
   { name: 'Semana 1', peso: 80 },
   { name: 'Semana 2', peso: 79.5 },
   { name: 'Semana 3', peso: 79 },
@@ -16,34 +11,35 @@ const data: ProgressData[] = [
   { name: 'Semana 6', peso: 77 },
 ];
 
-const ProgressChart: React.FC = () => {
+const ProgressChart = () => {
   return (
-    <div className="w-full h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{
+    React.createElement('div', { className: "w-full h-64" },
+      React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+        React.createElement(LineChart, {
+          data: data,
+          margin: {
             top: 5,
             right: 20,
             left: -10,
             bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-          <XAxis dataKey="name" stroke="#4b5563" />
-          <YAxis stroke="#4b5563" domain={['dataMin - 2', 'dataMax + 2']}/>
-          <Tooltip
-            contentStyle={{
+          }
+        },
+          React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: "#e0e0e0" }),
+          React.createElement(XAxis, { dataKey: "name", stroke: "#4b5563" }),
+          // FIX: The `domain` prop for YAxis expects functions for calculations to satisfy TypeScript types.
+          React.createElement(YAxis, { stroke: "#4b5563", domain: [dataMin => dataMin - 2, dataMax => dataMax + 2] }),
+          React.createElement(Tooltip, {
+            contentStyle: {
               backgroundColor: 'rgba(255, 255, 255, 0.8)',
               borderColor: '#84cc16',
               backdropFilter: 'blur(2px)',
-            }}
-          />
-          <Legend />
-          <Line type="monotone" dataKey="peso" stroke="#84cc16" strokeWidth={3} activeDot={{ r: 8 }} />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+            }
+          }),
+          React.createElement(Legend, null),
+          React.createElement(Line, { type: "monotone", dataKey: "peso", stroke: "#84cc16", strokeWidth: 3, activeDot: { r: 8 } })
+        )
+      )
+    )
   );
 };
 
